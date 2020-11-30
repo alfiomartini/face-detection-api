@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
+// https://stackoverflow.com/questions/13023361/how-does-node-bcrypt-js-compare-hashed-and-plaintext-passwords-without-the-salt
+const bcrypt = require('bcryptjs');
+const SALT_LEN = 10;
 
 // password hashing
 // https://www.codeproject.com/Articles/704865/Salted-Password-Hashing-Doing-it-Right
@@ -11,66 +14,46 @@ const port = 3000;
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
-let users_count = 2;
+let users_count = 0;
+let login_users = 0;
+
 
 const database = {
   users:[
-    {
-      id: 1,
-      name: 'John',
-      email: 'john@gmail.com',
-      password: 'bananas',
-      entries: 0,
-      joined: new Date()
-    },
-    {
-      id: 2,
-      name: 'Sally',
-      email: 'sally@gmail.com',
-      password: 'cookies',
-      entries: 0,
-      joined: new Date()
-    }
   ],
   login:[
   ]
 }
 
-app.get('/', (req, resp) => {
-  resp.json(database.users);
-});
-
-const signin = (req, resp)=>{
-  console.log(req.body);
-  const { email, password} = req.body;
-  const user = findUser(email, 'email');
-  if (user && user.password === password){
-    resp.json('Sign in successfull');
-  } else 
-  {
-    resp.status(400).json('Error in log in.')
-  }   
-};
-
-app.post('/signin', signin);
-
-const register = (req, resp) => {
-  const { users } = database;
-  const newUser = req.body;
-  newUser.entries = 0;
-  users_count++;
-  newUser.id = users_count;
-  newUser.joined = new Date();
-  users.push(newUser);
-  resp.json(newUser);
-}
-
-app.post('/register', register);
+// {
+//   id: 1,
+//   name: 'John',
+//   email: 'john@gmail.com',
+//   password: cookies,
+//   entries: 0,
+//   joined: new Date()
+// },
+// {
+//   id: 2,
+//   name: 'Sally',
+//   email: 'sally@gmail.com',
+//   password: bananas,
+//   entries: 0,
+//   joined: new Date()
+// }
+// {
+//   id: 1,
+//   email: 'john@gmail.com',
+//   hash: ''
+// },
+// {
+//   id: 2,
+//   email: 'sally@gmail.com',
+//   hash:''
+// }
 
 const findUser = (id, key) => {
-  // console.log(id,key);
   for (let user of database.users){
-    // console.log(id, user[key], id === user[key]);
     if (id === user[key]){
       return user;
     }
@@ -78,8 +61,77 @@ const findUser = (id, key) => {
   return {}
 };
 
+const findLogin = (email) => {
+  for (let log of database.login){
+    if (email === log.email){
+      return log;
+    }
+  }
+  return {}
+};
+
+function isEmpty(obj) {
+  for(let prop in obj) {
+    if (obj.hasOwnProperty(prop))
+        return false;
+  }
+  return true;
+}
+
+app.get('/', (req, resp) => {
+  resp.json(database);
+});
+
+const signin = (req, resp)=>{
+  console.log(req.body);
+  const { email, password } = req.body;
+  const userLogin = findLogin(email);
+  if (isEmpty(userLogin)){
+    resp.status(400).json('User not found.');
+  }
+  const { hash } = userLogin;
+  bcrypt.compare(password, hash, function(err, res) {
+    if (res){
+      resp.json(`Login of ${email} was successful`);
+    }
+    else {
+      resp.status(400).json('Error in log in.');
+    }
+  });  
+};
+
+app.post('/signin', signin);
+
+const register = (req, resp) => {
+  const { users, login } = database;
+  const { name, email, password } = req.body;
+  users_count++;
+  bcrypt.hash(password, SALT_LEN, function(err, hash) {
+    // Store hash in your password DB.
+    console.log('hash', hash);
+    const newUser = {
+      id: users_count,
+      name: name,
+      email: email,
+      password:password,
+      joined: new Date(),
+      entries:0
+    };
+    users.push(newUser);
+    login_users++
+    const newLogin = {
+      id: login_users,
+      email: email,
+      hash: hash
+    };
+    login.push(newLogin);
+    resp.json(newUser);
+  });
+}
+
+app.post('/register', register);
+
 app.get('/profile/:id', (req, resp) => {
-  // console.log(req.params);
   let { id } = req.params;
   id = Number(id);
   resp.json(findUser(id, 'id'));
