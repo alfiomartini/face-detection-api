@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
-const port = 3000;
+const port = 3100;
 const { isEmpty, findLogin, findUser, database } = require('./utils');
 
 // https://stackoverflow.com/questions/13023361/how-does-node-bcrypt-js-compare-hashed-and-plaintext-passwords-without-the-salt
@@ -15,6 +16,7 @@ const SALT_LEN = 10;
 // middleware to access req.body
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+app.use(cors());
 
 let users_count = 0;
 let login_users = 0;
@@ -24,40 +26,55 @@ app.get('/', (req, resp) => {
   resp.json(database);
 });
 
+// https://www.codementor.io/@oparaprosper79/understanding-node-error-err_http_headers_sent-117mpk82z8
 const signin = (req, resp)=>{
   console.log(req.body);
   const { email, password } = req.body;
   const userLogin = findLogin(email);
   if (isEmpty(userLogin)){
-    resp.status(400).json('User not found.');
+    return resp.json({
+      status: 400,
+      message:'User not found.'
+    });
   }
   const { hash } = userLogin;
   bcrypt.compare(password, hash, function(err, res) {
     if (res){
-      resp.json(`Login of ${email} was successful`);
+      resp.json({
+        message: `Login of ${email} was successful`,
+        status: 200
+      });
     }
     else {
-      resp.status(400).json('Error in log in.');
+      resp.json({
+        message: 'Error in log in.',
+        status: 400
+      });
     }
   });  
 };
-
 app.post('/signin', signin);
 
 const register = (req, resp) => {
   const { users, login } = database;
   const { name, email, password } = req.body;
-  users_count++;
-  bcrypt.hash(password, SALT_LEN, function(err, hash) {
-    // Store hash in your password DB.
-    console.log('hash', hash);
-    const newUser = {
-      id: users_count,
-      name: name,
-      email: email,
-      password:password,
-      joined: new Date(),
-      entries:0
+  if (!isEmpty(findLogin(email))){
+    resp.json({
+      message:'User already registered',
+      status:400
+    })
+  } else {
+      users_count++;
+      bcrypt.hash(password, SALT_LEN, function(err, hash) {
+      // Store hash in your password DB.
+      console.log('hash', hash);
+      const newUser = {
+        id: users_count,
+        name: name,
+        email: email,
+        password:password,
+        joined: new Date(),
+        entries:0
     };
     users.push(newUser);
     login_users++
@@ -67,10 +84,13 @@ const register = (req, resp) => {
       hash: hash
     };
     login.push(newLogin);
-    resp.json(newUser);
+    resp.json({
+      message:'register user was successful',
+      status: 200
+    });
   });
+  }
 }
-
 app.post('/register', register);
 
 app.get('/profile/:id', (req, resp) => {
@@ -93,7 +113,7 @@ app.put('/image/:id', (req, resp) => {
 });
 
 app.listen(port, () => {
-  console.log('listening to port:' + port);
+  console.log(' CORS enable web server listening to port:' + port);
 });
 
 /*
