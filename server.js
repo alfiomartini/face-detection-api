@@ -30,6 +30,12 @@ app.get('/', (req, resp) => {
 const signin = (req, resp)=>{
   console.log(req.body);
   const { email, password } = req.body;
+  if (email==='' || password==='' || name ===''){
+    return resp.json({
+      message:'Invalid data',
+      status:400
+    })
+  }
   const userLogin = findLogin(email);
   if (isEmpty(userLogin)){
     return resp.json({
@@ -58,6 +64,12 @@ app.post('/signin', signin);
 const register = (req, resp) => {
   const { users, login } = database;
   const { name, email, password } = req.body;
+  if (email==='' || password==='' || name ===''){
+    return resp.json({
+      message:'Invalid data',
+      status:400
+    })
+  }
   if (!isEmpty(findLogin(email))){
     resp.json({
       message:'User already registered',
