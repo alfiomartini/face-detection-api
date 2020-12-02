@@ -5,6 +5,14 @@ const database = {
   ]
 }
 
+const usersSet = () => {
+  const changedUsers = database.users.map(user => {
+     user.password='';
+     return user;
+  });
+  return changedUsers;
+}
+
 const findUser = (id, key) => {
   for (let user of database.users){
     if (id === user[key]){
@@ -35,6 +43,7 @@ module.exports = {
   isEmpty,
   findLogin,
   findUser, 
+  usersSet,
   database
 }
 
@@ -51,6 +60,13 @@ module.exports = {
 //   name: 'Sally',
 //   email: 'sally@gmail.com',
 //   password: bananas,
+//   entries: 0,
+//   joined: new Date()
+// }
+//   id: 3,
+//   name: 'Alfio',
+//   email: 'alfio.martini@gmail.com',
+//   password: easy,
 //   entries: 0,
 //   joined: new Date()
 // }

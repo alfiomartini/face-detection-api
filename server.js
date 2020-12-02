@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = 3100;
-const { isEmpty, findLogin, findUser, database } = require('./utils');
+const { isEmpty, findLogin, findUser, usersSet, database } = require('./utils');
 
 // https://stackoverflow.com/questions/13023361/how-does-node-bcrypt-js-compare-hashed-and-plaintext-passwords-without-the-salt
 const bcrypt = require('bcryptjs');
@@ -23,14 +23,14 @@ let login_users = 0;
 
 
 app.get('/', (req, resp) => {
-  resp.json(database);
+  resp.json(usersSet());
 });
 
 // https://www.codementor.io/@oparaprosper79/understanding-node-error-err_http_headers_sent-117mpk82z8
 const signin = (req, resp)=>{
   console.log(req.body);
   const { email, password } = req.body;
-  if (email==='' || password==='' || name ===''){
+  if (password==='' || email ===''){
     return resp.json({
       message:'Invalid data',
       status:400
@@ -46,9 +46,11 @@ const signin = (req, resp)=>{
   const { hash } = userLogin;
   bcrypt.compare(password, hash, function(err, res) {
     if (res){
+      const currentUser = findUser(email, 'email')
       resp.json({
         message: `Login of ${email} was successful`,
-        status: 200
+        status: 200,
+        user:currentUser
       });
     }
     else {
@@ -96,9 +98,11 @@ const register = (req, resp) => {
       hash: hash
     };
     login.push(newLogin);
+    newUser.password = '';
     resp.json({
       message:'register user was successful',
-      status: 200
+      status: 200,
+      user:newUser
     });
   });
   }
