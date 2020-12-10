@@ -3,10 +3,17 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = 3100;
-const { isEmpty, findLogin, findUser, usersSet, database } = require('./utils');
+const { usersSetdb } = require('./utils_db');
+const { db } = require('./db');
+
+// testing
+// db.select('*').from('users')
+// .then(rows => console.log('users rows',rows));
 
 // https://stackoverflow.com/questions/13023361/how-does-node-bcrypt-js-compare-hashed-and-plaintext-passwords-without-the-salt
 const bcrypt = require('bcryptjs');
+const { json } = require('body-parser');
+const { response } = require('express');
 const SALT_LEN = 10;
 
 // password hashing
@@ -18,114 +25,153 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 app.use(cors());
 
-let users_count = 0;
-let login_users = 0;
-
-
 app.get('/', (req, resp) => {
-  resp.json(usersSet());
+  usersSetdb()
+  .then(rows => resp.json(rows))
+  .catch(error => response.status(404).json('unable to fetch users'));
 });
 
 // https://www.codementor.io/@oparaprosper79/understanding-node-error-err_http_headers_sent-117mpk82z8
-const signin = (req, resp)=>{
-  console.log(req.body);
+const signin = (req, resp) => {
   const { email, password } = req.body;
   if (password==='' || email ===''){
-    return resp.json({
-      message:'Invalid data',
-      status:400
+    return resp.status(404).json({
+      message:'Invalid password or email'
     })
   }
-  const userLogin = findLogin(email);
-  if (isEmpty(userLogin)){
-    return resp.json({
-      status: 400,
-      message:'User not found.'
-    });
-  }
-  const { hash } = userLogin;
-  bcrypt.compare(password, hash, function(err, res) {
-    if (res){
-      const currentUser = findUser(email, 'email')
-      resp.json({
-        message: `Login of ${email} was successful`,
-        status: 200,
-        user:currentUser
-      });
-    }
-    else {
-      resp.json({
-        message: 'Error in log in.',
-        status: 400
-      });
-    }
-  });  
+  db('login')
+  .select('hash_pass')
+  .where({
+    email:email
+  })
+  .then(rows => {
+    const  hash  = rows[0].hash_pass;
+    const validPass = bcrypt.compareSync(password, hash);
+    if (validPass){
+      db('users')
+        .select('*')
+        .where({
+          email:email
+        })
+        .then(rows => {
+          const currentUser = rows[0];
+          resp.status(200).json({
+            message: `Login of ${email} was successful`,
+            user:currentUser
+          });
+        })
+        .catch(error => resp.status(404).json({message:'Error in fetching user.'}));
+      }
+      else {
+        resp.status(404).json({
+          message: 'Invalid user or password.'
+        });
+      } 
+  })
+  .catch(data => {
+    resp.status(404).json({
+    message:'Invalid  email or password.'
+    })
+  });
 };
 app.post('/signin', signin);
 
 const register = (req, resp) => {
-  const { users, login } = database;
   const { name, email, password } = req.body;
+
   if (email==='' || password==='' || name ===''){
-    return resp.json({
-      message:'Invalid data',
-      status:400
+    return resp.status(400).json({
+      message:'Invalid data'
     })
   }
-  if (!isEmpty(findLogin(email))){
-    resp.json({
-      message:'User already registered',
-      status:400
+
+  const salt = bcrypt.genSaltSync(SALT_LEN);
+  const hash = bcrypt.hashSync(password, salt);
+
+  db.transaction(trx => {
+    db('login')
+    .returning('email')
+    .insert({
+      email:email,
+      hash_pass:hash
     })
-  } else {
-      users_count++;
-      bcrypt.hash(password, SALT_LEN, function(err, hash) {
-      // Store hash in your password DB.
-      console.log('hash', hash);
-      const newUser = {
-        id: users_count,
-        name: name,
-        email: email,
-        password:password,
-        joined: new Date(),
-        entries:0
-    };
-    users.push(newUser);
-    login_users++
-    const newLogin = {
-      id: login_users,
-      email: email,
-      hash: hash
-    };
-    login.push(newLogin);
-    newUser.password = '';
-    resp.json({
-      message:'register user was successful',
-      status: 200,
-      user:newUser
-    });
-  });
-  }
+    .transacting(trx)
+    .then(email => {
+      // console.log('hey trx email', email);
+      return db('users')
+        .returning('*')
+        .insert({
+          email:email[0],
+          name:name,
+          joined:new Date()
+        })
+        .transacting(trx)
+        .then(rows => {
+          const user = rows[0];
+          return resp.status(200).json({
+            message:'Sign up was successful.',
+            user: user
+            })
+          })
+        // .catch(() => {throw new Error ('problem with the transaction')});
+    })
+    .then(trx.commit)
+    .catch(trx.rollback)
+  })
+  .then(data => console.log('Transaction register complete.'))
+  .catch(error => resp.status(400).json({message:'Unable to register this email.'}));
 }
+
 app.post('/register', register);
 
 app.get('/profile/:id', (req, resp) => {
   let { id } = req.params;
   id = Number(id);
-  resp.json(findUser(id, 'id'));
+  db('users')
+  .select('*')
+  .where({
+    id:id
+  })
+  .then(rows => {
+    if (rows.length > 0) {
+      resp.status(200).json(rows[0])
+    } 
+    else {
+      resp.status(404).json(null);
+    }
+  })
+  .catch(error => resp.status(404).json('unable to get profile'))
 });
 
-app.put('/image/:id', (req, resp) => {
-   let { id } = req.params;
-   id = Number(id);
-   const user = findUser(id, 'id');
-   if (user){
-     user.entries += 1;
-     resp.json(user.entries);
-   }
-   else {
-     resp.json(null);
-   }
+app.put('/image', (req, resp) => {
+  const { email } = req.body;
+  db('users')
+  .select('*')
+  .where({
+    email:email
+  })
+  .then(rows => {
+  if (rows.length > 0){
+    const user = rows[0]
+    const entries = user.entries + 1;
+    db('users')
+    .update({
+      entries: entries
+    })
+    .where({
+      email:email
+    })
+    .then(() => {
+      resp.json(entries);
+    })
+    .catch(console.log('error in update query (image)'))
+  }
+  else {
+    console.log('nothing returned in select (image)');
+    resp.json(null);
+  }
+  })
+  .catch(() => console.log('error in select query (image)'))
 });
 
 app.listen(port, () => {

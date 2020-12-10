@@ -5,6 +5,9 @@ const database = {
   ]
 }
 
+let users_count = 0;
+let login_users = 0;
+
 const usersSet = () => {
   const changedUsers = database.users.map(user => {
      user.password='';
