@@ -73,6 +73,13 @@ module.exports = {
 //   entries: 0,
 //   joined: new Date()
 // }
+//   id: 4,
+//   name: 'Cathy',
+//   email: 'cathy@gmail.com',
+//   password: pass01,
+//   entries: 0,
+//   joined: new Date()
+// }
 // {
 //   id: 1,
 //   email: 'john@gmail.com',

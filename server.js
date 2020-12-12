@@ -87,12 +87,13 @@ const register = (req, resp) => {
 
   const salt = bcrypt.genSaltSync(SALT_LEN);
   const hash = bcrypt.hashSync(password, salt);
-
+  
+  // db.transaction also returns a promise
   db.transaction(trx => {
     db('login')
     .returning('email')
     .insert({
-      email:email,
+      email:email.toLowerCase(),
       hash_pass:hash
     })
     .transacting(trx)
@@ -101,8 +102,8 @@ const register = (req, resp) => {
       return db('users')
         .returning('*')
         .insert({
-          email:email[0],
-          name:name,
+          email:email[0].toLowerCase(),
+          name:name.toLowerCase(),
           joined:new Date()
         })
         .transacting(trx)
@@ -116,10 +117,14 @@ const register = (req, resp) => {
         // .catch(() => {throw new Error ('problem with the transaction')});
     })
     .then(trx.commit)
+    // trx.rollback must be called with a rejected promise?
     .catch(trx.rollback)
   })
   .then(data => console.log('Transaction register complete.'))
-  .catch(error => resp.status(400).json({message:'Unable to register this email.'}));
+  .catch(error => {
+    console.log('error transaction =', error.detail);
+    resp.status(400).json({message:'Unable to register this email.'})
+  });
 }
 
 app.post('/register', register);
