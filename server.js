@@ -5,11 +5,12 @@ const app = express();
 const port = 3100;
 const { usersSetdb } = require('./utils_db');
 const { db } = require('./db');
+const Clarifai = require('clarifai');
 
 
 const { register } = require('./controllers/register');
 const { signin } = require('./controllers/signin');
-const { image } = require('./controllers/image');
+const { image, clarifaiModel } = require('./controllers/image');
 const { profile } = require('./controllers/profile');
 
 
@@ -39,6 +40,8 @@ app.get('/', (req, resp) => {
 // Using currying here (amazing) 
 // signing(db, bcrypt) is a function that has type (req, resp) => {...}
 app.post('/signin', signin(db, bcrypt));
+
+app.post('/model', clarifaiModel);
 
 app.post('/register', (req, resp) => register(req, resp, db, bcrypt));
 

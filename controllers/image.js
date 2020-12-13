@@ -32,4 +32,25 @@
   .catch(() => console.log('error in select query (image)'))
 }
 
-module.exports = { image }
+const clar_app = new Clarifai.App(
+  // have to save this in an environment variable
+  // https://medium.com/@trekinbami/using-environment-variables-in-react-6b0a99d83cf5
+  // https://create-react-app.dev/docs/adding-custom-environment-variables/
+  {
+    apiKey: '5e80f6ee89054099babe7674fb1c7dcd'
+  }
+)
+
+const clarifaiModel = (req, resp) => {
+  const { image_url} = req.body;
+  clar_app.models
+    .predict(
+      Clarifai.FACE_DETECT_MODEL,
+      image_url)
+    .then(model => resp.json(model))
+}
+
+module.exports = { 
+    image,
+    clarifaiModel
+}
