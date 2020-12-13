@@ -1,4 +1,4 @@
-const signin = (req, resp, db, bcrypt) => {
+const signin = (db, bcrypt) => (req, resp) => {
   const { email, password } = req.body;
   if (password==='' || email ===''){
     return resp.status(404).json({

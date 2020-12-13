@@ -36,7 +36,9 @@ app.get('/', (req, resp) => {
 
 // https://www.codementor.io/@oparaprosper79/understanding-node-error-err_http_headers_sent-117mpk82z8
 
-app.post('/signin', (req, resp) => signin(req, resp, db, bcrypt));
+// Using currying here (amazing) 
+// signing(db, bcrypt) is a function that has type (req, resp) => {...}
+app.post('/signin', signin(db, bcrypt));
 
 app.post('/register', (req, resp) => register(req, resp, db, bcrypt));
 
