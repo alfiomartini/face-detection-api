@@ -169,7 +169,10 @@ app.put('/image', (req, resp) => {
     .then(() => {
       resp.json(entries);
     })
-    .catch(console.log('error in update query (image)'))
+    .catch(error => {
+      console.log('error in update query (image)');
+      console.log(error.message);
+    })
   }
   else {
     console.log('nothing returned in select (image)');
