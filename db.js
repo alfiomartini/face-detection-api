@@ -1,20 +1,9 @@
 const  knex = require('knex');
 
-// initialize database, a query builder object
-// https://www.postgresqltutorial.com/postgresql-foreign-key/
-// const db = knex({ 
-//   client: 'pg',
-//   connection: {
-//     host : '127.0.0.1',
-//     user : 'postgres',
-//     password : 'galileu02',
-//     database : 'smart_brain'
-//   }
-// });
-
+const { PG_DATABASE } = require('./config')
 const db = knex({
   client: 'pg',
-  connection:'postgres://postgres:galileu02@127.0.0.1:5432/smart_brain'
+  connection:PG_DATABASE
 });
 
 module.exports = { db };

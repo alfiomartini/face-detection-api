@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const port = 3100;
+const { PORT } = require('./config');
 const { usersSetdb } = require('./utils_db');
 const { db } = require('./db');
 const Clarifai = require('clarifai');
@@ -49,8 +49,8 @@ app.get('/profile/:id', (req, resp) => profile(req, resp, db, bcrypt));
 
 app.put('/image', (req, resp) => image(req, resp, db, bcrypt));
 
-app.listen(port, () => {
-  console.log(' CORS enable web server listening to port:' + port);
+app.listen(PORT, () => {
+  console.log(' CORS enable web server listening to port:' + PORT);
 });
 
 /*
