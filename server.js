@@ -32,7 +32,7 @@ app.use(cors());
 app.get('/', (req, resp) => {
   usersSetdb()
   .then(rows => resp.json(rows))
-  .catch(error => response.status(404).json('unable to fetch users'));
+  .catch(error => resp.status(404).json('unable to fetch users'));
 });
 
 // https://www.codementor.io/@oparaprosper79/understanding-node-error-err_http_headers_sent-117mpk82z8
