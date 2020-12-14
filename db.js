@@ -1,11 +1,11 @@
 const  knex = require('knex');
 
-const { DATABASE_URL } = require('./config')
+const { PG_DATABASE } = require('./config')
 
 const db = knex({
   client: 'pg',
   connection: {
-    connectionString: DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false
     }
