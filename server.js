@@ -30,10 +30,10 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, resp) => {
-  // usersSetdb()
-  // .then(rows => resp.json(rows))
-  // .catch(error => resp.status(404).json('unable to fetch users'));
-  resp.json('Wellcome to the Face Detection API.')
+  usersSetdb()
+  .then(rows => resp.json(rows))
+  .catch(error => resp.status(404).json('unable to fetch users'));
+  // resp.json('Wellcome to the Face Detection API.')
 });
 
 // https://www.codementor.io/@oparaprosper79/understanding-node-error-err_http_headers_sent-117mpk82z8
