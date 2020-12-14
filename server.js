@@ -32,7 +32,10 @@ app.use(cors());
 app.get('/', (req, resp) => {
   usersSetdb()
   .then(rows => resp.json(rows))
-  .catch(error => resp.status(404).json('unable to fetch users'));
+  .catch(error => {
+    console.log(error);
+    resp.status(404).json('unable to fetch users');
+  });
   // resp.json('Wellcome to the Face Detection API.')
 });
 
