@@ -10,7 +10,7 @@ const Clarifai = require('clarifai');
 
 const { register } = require('./controllers/register');
 const { signin } = require('./controllers/signin');
-const { entries, clarifaiModel } = require('./controllers/image');
+const { entries, clarifaiModel } = require('./controllers/entries');
 const { profile } = require('./controllers/profile');
 
 
@@ -58,7 +58,7 @@ app.post('/register', (req, resp) => register(req, resp, db, bcrypt));
 
 app.get('/profile/:id', (req, resp) => profile(req, resp, db, bcrypt));
 
-app.put('/entries', (req, resp) => image(req, resp, db, bcrypt));
+app.put('/entries', (req, resp) => entries(req, resp, db, bcrypt));
 
 app.listen(PORT, () => {
   console.log(' CORS enabled web server listening to port:' + PORT);
