@@ -1,10 +1,12 @@
 const signin = (db, bcrypt) => (req, resp) => {
   const { email, password } = req.body;
+
   if (password==='' || email ===''){
     return resp.status(404).json({
       message:'Invalid password or email'
     })
   }
+  
   db('login')
   .select('hash_pass')
   .where({

@@ -1,4 +1,4 @@
-  const image = (req, resp, db, bcrypt) => {
+  const entries = (req, resp, db, bcrypt) => {
     const { email } = req.body;
     db('users')
     .select('*')
@@ -54,6 +54,6 @@ const clarifaiModel = (req, resp) => {
 }
 
 module.exports = { 
-    image,
+    entries,
     clarifaiModel
 }
