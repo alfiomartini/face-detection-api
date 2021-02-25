@@ -22,6 +22,7 @@
         .catch(error => {
           console.log('error in update query (image)');
           console.log(error.message);
+          resp.json(null)
         })
       }
       else {

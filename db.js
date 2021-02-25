@@ -1,6 +1,8 @@
 const  knex = require('knex');
 // https://cek.io/blog/2016/10/24/knex-configuration-heroku/
 
+// https://cek.io/blog/2016/10/24/knex-configuration-heroku/
+
 const { PG_DATABASE } = require('./config')
 
 const db = knex({

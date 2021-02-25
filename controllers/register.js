@@ -24,20 +24,20 @@ const register = (req, resp, db, bcrypt) => {
     .then(email => {
       // console.log('hey trx email', email);
       return db('users')
-        .returning('*')
-        .insert({
-          email:email[0].toLowerCase(),
-          name:name.toLowerCase(),
-          joined:new Date()
+      .returning('*')
+      .insert({
+        email:email[0].toLowerCase(),
+        name:name.toLowerCase(),
+        joined:new Date()
+      })
+      .transacting(trx)
+      .then(rows => {
+        const user = rows[0];
+        return resp.status(200).json({
+          message:'Sign up was successful.',
+          user: user
         })
-        .transacting(trx)
-        .then(rows => {
-          const user = rows[0];
-          return resp.status(200).json({
-            message:'Sign up was successful.',
-            user: user
-            })
-          })
+      })
         // .catch(() => {throw new Error ('problem with the transaction')});
     })
     .then(trx.commit)
