@@ -18,6 +18,6 @@ access the Clarifai API. The server is comprised of the following endpoints:
 
 `curl -X POST -H "Content-Type: application/json" -d '{"image_url":"https://www.sciencenewsforstudents.org/wp-content/uploads/2019/11/860_main_beauty.png"}' https://facedet-api.herokuapp.com/model`
 
-- PUT /entries: Increments the number of image entries of user denoted by email data.
+- PUT /entries: Increments the number of image submissions by the user.
 
 `curl -X POST -H "Content-Type: application/json" -d '{"email":"johndoe@gmail.com"}' https://facedet-api.herokuapp.com/entries`
