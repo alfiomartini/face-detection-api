@@ -1,8 +1,8 @@
 # A Node Server for the Face Detection App
 
-This is a server written in Node.js for the Face Detection App. The server implements the backend database
+The server implements the backend database
 needed to store information about users (using PostgreSQL) and also encapsulate private keys needed to
-access the Clarifai API. The server is comprised of following endpoints:
+access the Clarifai API. The server is comprised of the following endpoints:
 
 - POST /register: Sign up a new user and returns JSON data about new user (name, email, number of entries and
   sign up date).
