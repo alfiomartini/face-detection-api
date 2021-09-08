@@ -15,23 +15,26 @@ const { profile } = require('./controllers/profile');
 
 
 // https://stackoverflow.com/questions/13023361/how-does-node-bcrypt-js-compare-hashed-and-plaintext-passwords-without-the-salt
-const bcrypt = require('bcryptjs');
-// const { json } = require('body-parser');
-// const { response } = require('express');
-const SALT_LEN = 10;
 
 // password hashing
 // https://www.codeproject.com/Articles/704865/Salted-Password-Hashing-Doing-it-Right
 // https://crackstation.net/hashing-security.htm
 
+const bcrypt = require('bcryptjs');
+// const { json } = require('body-parser');
+// const { response } = require('express');
+const SALT_LEN = 10;
 
-app.use(bodyParser.urlencoded({extended:false}));
+// https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
 
-//  Returns middleware that only parses json and only looks at requests where the Content-Type header 
-// matches the typeoption. A new body object containing the parsed data is populated on the request object 
-// after the middleware (i.e. req.body).
+// https://cursos.alura.com.br/forum/topico-bodyparser-is-deprecated-147117
+// https://expressjs.com/en/4x/api.html#express.urlencoded
 
-app.use(bodyParser.json());
+app.use(express.urlencoded({extended:false}));
+
+//  Returns middleware that only parses json. A new body object containing the parsed data is populated on the request object  (i.e. req.body).
+
+app.use(express.json());
 
 // This is CORS-enabled for all origins!'
 app.use(cors());
@@ -63,11 +66,3 @@ app.put('/entries', (req, resp) => entries(req, resp, db, bcrypt));
 app.listen(PORT, () => {
   console.log(' CORS enabled web server listening to port:' + PORT);
 });
-
-/*
- route('/'): GET, 'this is working'
- route('/signin'): POST, success/fail (sensitive info)
- route('/register'): POST, return the new user
- route('/profile/:user_id', GET, return the new user
- route(/image'), PUT, return the updated rank
-*/

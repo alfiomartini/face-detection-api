@@ -2,6 +2,10 @@
 
 // https://www.twilio.com/blog/working-with-environment-variables-in-node-js-html
 
+// config() will read your .env file, parse the contents, assign it to process.env, and return an Object with a parsed key containing the loaded content or an error key if it failed.
+
+// https://www.npmjs.com/package/dotenv
+
 const dotenv = require('dotenv');
 dotenv.config();
 module.exports = {

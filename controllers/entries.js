@@ -51,7 +51,7 @@ const clarifaiModel = (req, resp) => {
       Clarifai.FACE_DETECT_MODEL,
       image_url)
     .then(model => resp.json(model))
-    .catch(error => resp.status(400).json('Unable to get image'));
+    .catch(error => resp.status(400).json('Unable to get image model'));
 }
 
 module.exports = { 

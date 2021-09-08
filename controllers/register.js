@@ -3,9 +3,9 @@ const SALT_LEN = 10;
 const register = (req, resp, db, bcrypt) => {
   const { name, email, password } = req.body;
 
-  if (email==='' || password==='' || name ===''){
+  if (!email || !password || !name){
     return resp.status(400).json({
-      message:'Invalid data'
+      message:'Invalid request. Missing data'
     })
   }
 
@@ -14,7 +14,7 @@ const register = (req, resp, db, bcrypt) => {
   
   // db.transaction also returns a promise
   db.transaction(trx => {
-    db('login')
+    return db('login')
     .returning('email')
     .insert({
       email:email.toLowerCase(),
@@ -22,7 +22,8 @@ const register = (req, resp, db, bcrypt) => {
     })
     .transacting(trx)
     .then(email => {
-      // console.log('hey trx email', email);
+      // return transaction promise here so as not to insert
+      // the response object
       return db('users')
       .returning('*')
       .insert({
@@ -31,14 +32,14 @@ const register = (req, resp, db, bcrypt) => {
         joined:new Date()
       })
       .transacting(trx)
-      .then(rows => {
-        const user = rows[0];
-        return resp.status(200).json({
+    .then(rows => {
+      // console.log('register rows', rows);
+      const user = rows[0];
+      return resp.status(200).json({
           message:'Sign up was successful.',
           user: user
         })
       })
-        // .catch(() => {throw new Error ('problem with the transaction')});
     })
     .then(trx.commit)
     // trx.rollback must be called with a rejected promise?

@@ -20,7 +20,7 @@
           resp.json(entries);
         })
         .catch(error => {
-          console.log('error in update query (image)');
+          console.log('error in update in number of entries');
           console.log(error.message);
         })
       }
@@ -29,7 +29,7 @@
         resp.json(null);
       }
     })
-    .catch(() => console.log('error in select query (image)'))
+    .catch(() => console.log('error in selecting this user'))
 }
 
 const { CLARIFAI_KEY } = require('../config');
