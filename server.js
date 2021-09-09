@@ -26,8 +26,7 @@ const bcrypt = require('bcryptjs');
 const SALT_LEN = 10;
 
 // https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
- 
- 
+
 // https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
 
 // app.use(express.urlencoded({extended:false}));
