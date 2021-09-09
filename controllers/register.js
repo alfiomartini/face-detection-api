@@ -35,7 +35,7 @@ const register = (req, resp, db, bcrypt) => {
       .then(rows => {
         // console.log('register rows', rows);
         const user = rows[0];
-        return resp.status(200).json({
+        resp.status(200).json({
             message:'Sign up was successful.',
             user: user
           })
@@ -47,7 +47,7 @@ const register = (req, resp, db, bcrypt) => {
   })
   .then(data => console.log('Transaction register complete.'))
   .catch(error => {
-    console.log('error transaction =', error.detail);
+    console.log('error transaction =', error);
     resp.status(400).json({message:'Unable to register this email.'})
   });
 }

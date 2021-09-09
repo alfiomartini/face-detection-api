@@ -26,11 +26,11 @@ const bcrypt = require('bcryptjs');
 const SALT_LEN = 10;
 
 // https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
+ 
+ 
+// https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
 
-// https://cursos.alura.com.br/forum/topico-bodyparser-is-deprecated-147117
-// https://expressjs.com/en/4x/api.html#express.urlencoded
-
-app.use(express.urlencoded({extended:false}));
+// app.use(express.urlencoded({extended:false}));
 
 //  Returns middleware that only parses json. A new body object containing the parsed data is populated on the request object  (i.e. req.body).
 
