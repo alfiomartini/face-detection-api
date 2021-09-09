@@ -32,13 +32,13 @@ const register = (req, resp, db, bcrypt) => {
         joined:new Date()
       })
       .transacting(trx)
-    .then(rows => {
-      // console.log('register rows', rows);
-      const user = rows[0];
-      return resp.status(200).json({
-          message:'Sign up was successful.',
-          user: user
-        })
+      .then(rows => {
+        // console.log('register rows', rows);
+        const user = rows[0];
+        return resp.status(200).json({
+            message:'Sign up was successful.',
+            user: user
+          })
       })
     })
     .then(trx.commit)
