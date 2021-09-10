@@ -3,14 +3,12 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const { PORT } = require('./config');
-const { usersSetdb } = require('./utils_db');
 const { db } = require('./db');
-const Clarifai = require('clarifai');
-
 
 const { register } = require('./controllers/register');
 const { signin } = require('./controllers/signin');
-const { entries, clarifaiModel } = require('./controllers/entries');
+const { entries} = require('./controllers/entries');
+const { clarifaiModel } = require('./controllers/clarifai');
 const { profile } = require('./controllers/profile');
 
 
